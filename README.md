@@ -207,3 +207,299 @@ Two classes interact which makes it hard to test. We need a _test double_ for ea
 * Mock: A fake object where you can set expectations
 
 Reference Reading: [Mocks are not stubs](https://martinfowler.com/articles/mocksArentStubs.html)
+
+```csharp
+public interface ILog
+{
+    bool Write(string msg);
+}
+
+public class BankAccount
+{
+    public int Balance { get; set; }
+    private readonly ILog log;
+
+    public BankAccount(ILog log)
+    {
+        this.log = log;
+    }
+
+    public void Deposit(int amount)
+    {
+        if(log.Write($"Depositing {amount}"))
+            Balance += amount;
+    }
+}
+```
+
+To write a fake class:
+```csharp
+public class NullLog : ILog
+{
+    public bool Write(string msg)
+    {
+        return true;
+    }
+}
+
+[Test]
+public void DepositUnitTestWithFake()
+{
+    var log = new NullLog();
+    ba = new BankAccount(log) { Balance = 100 };
+    ba.Deposit(100);
+    Assert.That(ba.Balance, Is.EqualTo(200));
+}
+```
+
+With stubs:
+```csharp
+public class NullLogWithResult : ILog
+{
+    private bool expectedResult;
+
+    public NullLogWithResult(bool expectedResult)
+    {
+        this.expectedResult = expectedResult;
+    }
+    public bool Write(string msg)
+    {
+        return expectedResult;
+    }
+}
+
+[Test]
+public void DepositUnitTestWithStubs()
+{
+    var log = new NullLogWithResult(true);
+    ba = new BankAccount(log) { Balance = 100 };
+    ba.Deposit(100);
+    Assert.That(ba.Balance, Is.EqualTo(200));
+}
+```
+
+With Mock:
+```csharp
+public class LogMock : ILog
+{
+    private bool expectedResult;
+    public Dictionary<string, int> MethodCallCount;
+
+    public LogMock(bool expectedResult)
+    {
+        this.expectedResult = expectedResult;
+        MethodCallCount = new Dictionary<string, int>();
+    }
+
+    private void AddOrIncrement(string methodName)
+    {
+        if (MethodCallCount.ContainsKey(methodName))
+        {
+            MethodCallCount[methodName]++;
+        }
+        else
+        {
+            MethodCallCount.Add(methodName, 1);
+        }
+    }
+
+    public bool Write(string msg)
+    {
+        AddOrIncrement(nameof(Write));
+        return expectedResult;
+    }
+}
+
+[Test]
+public void DepositUnitTestWithMocks()
+{
+    var log = new LogMock(true);
+    ba = new BankAccount(log) { Balance = 100 };
+    ba.Deposit(100);
+    Assert.Multiple(() =>
+    {
+        Assert.That(ba.Balance, Is.EqualTo(200));
+        Assert.That(log.MethodCallCount[nameof(LogMock.Write)], Is.EqualTo(1));
+    });
+}
+```
+
+## Section 4 Moq
+* Methods
+* Properties
+* Verifications
+* Protected members
+
+We can first try to rewrite the unit test using **Moq**
+```csharp
+
+ [TestFixture]
+public class BankAccountTests
+{
+    private BankAccount ba;
+
+    [Test]
+    public void DepositTest()
+    {
+        var log = new Mock<ILog>();
+        ba = new BankAccount(log.Object) { Balance = 100 };
+        ba.Deposit(100);
+        Assert.That(ba.Balance, Is.EqualTo(200));
+    }
+}
+```
+
+#### Mocking methods
+A powerful scheme that **Moq** provides us is to set up what it returns.
+
+Simple setups we can do using **Moq**:
+```csharp
+public interface IFoo
+{
+    bool DoSomething(string value);
+    string ProcessString(string value);
+    bool add(int x);
+    int Counting();
+}
+
+[Test]
+public void MoqMethods()
+{
+    var mock = new Mock<IFoo>();
+    mock.Setup(foo => foo.DoSomething("TITAN")).Returns(true);
+    mock.Setup(foo => foo.DoSomething("SOFT")).Returns(false);
+    mock.Setup(foo => foo.DoSomething(It.IsIn("titan", "soft"))).Returns(false);
+
+    mock.Setup(foo => foo.ProcessString(It.IsAny<string>())).Returns("good");
+    mock.Setup(foo => foo.add(It.Is<int>(x => x % 2 == 0))).Returns(true);
+    mock.Setup(foo => foo.ProcessString(It.IsRegex("[a-z]+"))).Returns("regex");
+    Assert.Multiple(() =>
+    {
+        Assert.IsTrue(mock.Object.DoSomething("TITAN"));
+        Assert.IsFalse(mock.Object.DoSomething("SOFT"));
+        Assert.IsFalse(mock.Object.DoSomething("titan"));
+        Assert.IsFalse(mock.Object.DoSomething("soft"));
+        Assert.That(mock.Object.ProcessString("321"), Is.EqualTo("good"));
+        Assert.IsTrue(mock.Object.add(10));
+        Assert.IsFalse(mock.Object.add(11));
+        Assert.That(mock.Object.ProcessString("abc"), Is.EqualTo("regex"));
+    });
+}
+```
+
+Of course, sometimes we need more controls such as callbacks:
+```cs
+[Test]
+public void MoqMethodsMoreControls()
+{
+    var mock = new Mock<IFoo>();
+    mock.Setup(foo => foo.ProcessString(It.IsAny<string>())).Returns((string s) => s.ToLower());
+    
+    var calls = 0;
+    mock.Setup(foo => foo.Counting())
+        .Returns(() => calls)
+        .Callback(() => calls++);
+
+    mock.Object.Counting();
+    mock.Object.Counting();
+
+    Assert.Multiple(() =>
+    {
+        Assert.That(mock.Object.ProcessString("ABC"), Is.EqualTo("abc"));
+        Assert.That(mock.Object.Counting(), Is.EqualTo(2));
+        Assert.That(calls, Is.EqualTo(3));
+    });
+}
+```
+
+We also have some cases which we want to check to see if it throws exceptions:
+```cs
+[Test]
+public void MoqMethodsException()
+{
+    var mock = new Mock<IFoo>();
+    mock.Setup(foo => foo.DoSomething(null)).Throws(new ArgumentException());
+
+    Assert.Throws<ArgumentException>(() =>
+    {
+        mock.Object.DoSomething(null);
+    });
+}
+```
+
+#### Exercise
+For your Player class, try to use **Moq** to control how much money he makes. Also, use a local variable to keep a count of how many times **makeMoney** is called.
+
+
+Now let's look at how to mock properties.
+```cs
+public interface IFoo
+{
+    bool DoSomething(string value);
+    string ProcessString(string value);
+    bool add(int x);
+    int Counting();
+    string Name{get;set;}
+    int SomeOtherProperty { get; set; }
+}
+
+[Test]
+public void ValueTracking()
+{
+    var mock = new Mock<IFoo>();
+    //mock.SetupProperty(f => f.Name); // we can now manimulate Name
+    mock.SetupAllProperties();
+    IFoo foo = mock.Object;
+    foo.Name = "abc";
+    Assert.That(mock.Object.Name, Is.EqualTo("abc"));
+    foo.SomeOtherProperty = 123;
+    Assert.That(mock.Object.SomeOtherProperty, Is.EqualTo(123));
+}
+```
+
+However if we want to write our own setter
+```cs
+[Test]
+public void MyProperties()
+{
+    var mock = new Mock<IFoo>();
+    bool called = false;
+    string name = string.Empty;
+    mock.SetupSet(foo =>
+    {
+        foo.Name = It.IsAny<string>();
+    }).Callback<string>((value) => {
+        called = true; name = value;
+    });
+    
+    mock.Object.Name = "Hello";
+    mock.SetupGet(foo => foo.Name).Returns(name);
+    Assert.AreEqual("Hello", mock.Object.Name);
+    Assert.IsTrue(called);
+    mock.VerifyGet(foo => foo.Name);
+    mock.VerifySet(foo => foo.Name = It.IsRegex("[a-z]+"), Times.AtLeastOnce);
+}
+```
+
+#### Exercise
+Mock Player's Cash to whatever you want. Also verify that **MakeMoney()** is called at least once.
+
+
+Our last topic is about mocking protected members. To do this, you have to use the **Moq.protected** namespace.
+
+#### Exercise
+Create a method called **ThrowRandomGesture()**. The way it generates random gesture depends on a private method called **GetRandomNumber()**. Try to mock  **GetRandomNumber()** so **ThrowRandomGesture()** always returns what you want.
+
+```cs
+private int GetRandomNumber()
+{
+    return new Random().Next(0, 2);
+}
+
+public Gesture ThrowRandomGesture()
+{
+    var random = GetRandomNumber();
+    var gestures = new Gesture[] { new Rock(), new Paper(), new Scissors() };
+    return gestures[random];
+}
+```

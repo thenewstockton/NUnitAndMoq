@@ -92,6 +92,18 @@ namespace NunitAndMoq.Section2
                 Cash -= amount;
         }
 
+        protected virtual int GetRandomNumber()
+        {
+            return new Random().Next(0, 2);
+        }
+
+        public Gesture ThrowRandomGesture()
+        {
+            var random = GetRandomNumber();
+            var gestures = new Gesture[] { new Rock(), new Paper(), new Scissors() };
+            return gestures[random];
+        }
+
         public Gesture ThrowGesture(string gestureName)
         {
             if (string.IsNullOrEmpty(gestureName))
