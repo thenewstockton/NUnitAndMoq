@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using NunitAndMoq.Section1;
+using NunitAndMoq.Section3;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,8 +17,8 @@ namespace NunitAndMoq.Section2
         [SetUp]
         public void SetUp()
         {
-            Phillip = new Player() {Cash= 100 };
-            Flash = new Player() { Cash = 1000 };
+            Phillip = new Player(null) {Cash= 100 };
+            Flash = new Player(null) { Cash = 1000 };
         }
 
         [Test]
@@ -65,41 +66,54 @@ namespace NunitAndMoq.Section2
         {
             Assert.Inconclusive("Inconclusive");
         }
+    }
 
-        public class FlashException : Exception { }
+    public class FlashException : Exception { }
 
-        public class Player
+    public class Player
+    {
+        public int Cash { get; set; }
+
+        private IMakeMoney MakeMoney;
+
+        public Player(IMakeMoney makeMoney)
         {
-            public int Cash { get; set; }
-            public void Withdraw(int amount)
-            {
-                if (amount <= Cash)
-                    Cash -= amount;
-            }
+            this.MakeMoney = makeMoney;
+        }
 
-            public Gesture ThrowGesture(string gestureName)
-            {
-                if (string.IsNullOrEmpty(gestureName))
-                    throw new FlashException();
-                var gestureDict = new Dictionary<string, Gesture>
+        public int MakingMoney()
+        {
+            return MakeMoney.MakeMoney();
+        }
+
+        public void Withdraw(int amount)
+        {
+            if (amount <= Cash)
+                Cash -= amount;
+        }
+
+        public Gesture ThrowGesture(string gestureName)
+        {
+            if (string.IsNullOrEmpty(gestureName))
+                throw new FlashException();
+            var gestureDict = new Dictionary<string, Gesture>
                 {
                     { "Rock", new Rock()},
                     { "Paper", new Paper()},
                     { "Scissors", new Scissors()}
                 };
 
-                Gesture gesture;
-                try
-                {
-                    gesture = gestureDict[gestureName];
-                }
-                catch (KeyNotFoundException)
-                {
-                    throw new KeyNotFoundException("This gesture is not implemented!!!");
-                }
-
-                return gesture;
+            Gesture gesture;
+            try
+            {
+                gesture = gestureDict[gestureName];
             }
+            catch (KeyNotFoundException)
+            {
+                throw new KeyNotFoundException("This gesture is not implemented!!!");
+            }
+
+            return gesture;
         }
     }
 }
