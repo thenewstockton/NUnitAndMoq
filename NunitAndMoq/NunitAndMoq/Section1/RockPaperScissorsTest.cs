@@ -65,9 +65,18 @@ namespace NunitAndMoq.Section1
         {
             Gesture paper1 = new Paper();
             Gesture paper2 = new Paper();
-
             Assert.IsTrue(paper1.Beats(paper2) == 0);
             Assert.IsTrue(paper2.Beats(paper1) == 0);
+        }
+
+        [Test]
+        public void NoResult()
+        {
+            Gesture gesture = null;
+            Gesture rock = new Rock();
+            
+            Warn.Unless(rock.Beats(gesture) != -2);
+            Warn.If(rock.Beats(gesture) == -2); 
         }
     }
 
@@ -81,7 +90,7 @@ namespace NunitAndMoq.Section1
                 return Beats(gesture as Scissors);
             else if (gesture is Rock)
                 return Beats(gesture as Rock);
-            throw new NotImplementedException();
+            return -2;
         }
         public abstract int Beats(Paper paper);
         public abstract int Beats(Scissors scissors);
