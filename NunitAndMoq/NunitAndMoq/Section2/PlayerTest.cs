@@ -16,8 +16,17 @@ namespace NunitAndMoq.Section2
         [SetUp]
         public void SetUp()
         {
-            Phillip = new Player();
-            Flash = new Player();
+            Phillip = new Player() {Cash= 100 };
+            Flash = new Player() { Cash = 1000 };
+        }
+
+        [Test]
+        [TestCase(100, 0)]
+        [TestCase(101, 100)]
+        public void WithdrawlPhillipCash(int withdrawalAmount, int result)
+        {
+            Phillip.Withdraw(withdrawalAmount);
+            Assert.That(Phillip.Cash, Is.EqualTo(result));
         }
 
         [Test]
@@ -61,6 +70,13 @@ namespace NunitAndMoq.Section2
 
         public class Player
         {
+            public int Cash { get; set; }
+            public void Withdraw(int amount)
+            {
+                if (amount <= Cash)
+                    Cash -= amount;
+            }
+
             public Gesture ThrowGesture(string gestureName)
             {
                 if (string.IsNullOrEmpty(gestureName))

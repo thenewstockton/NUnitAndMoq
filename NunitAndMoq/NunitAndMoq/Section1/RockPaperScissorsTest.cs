@@ -10,14 +10,32 @@ namespace NunitAndMoq.Section1
     [TestFixture]
     public class RockPaperScissorsTest
     {
+        private static object[] MyCaseSource =
+        {
+            new object[] { new Rock(), new Paper(), -1 },
+        };
+
+        [Test]
+        [TestCaseSource("MyCaseSource")]
+        //[TestCase(new Rock(),new Paper(), 1)]
+        public void TestFlows(Gesture gesture1, Gesture gesture2, int result)
+        {
+            Assert.That(gesture1.Beats(gesture2), Is.EqualTo(result));
+        }
+
         [Test]
         public void TestPaperBeatsRock()
         {
             Gesture rock = new Rock();
             Gesture paper = new Paper();
 
-            Assert.IsTrue(paper.Beats(rock) > 0);
-            Assert.IsFalse(rock.Beats(paper) > 0);
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(paper.Beats(rock) < 0);
+                Assert.IsTrue(rock.Beats(paper) > 0);
+            });
+            //Assert.IsTrue(paper.Beats(rock) > 0);
+            //Assert.IsFalse(rock.Beats(paper) > 0);
         }
 
         [Test]
