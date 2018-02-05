@@ -20,7 +20,7 @@ TDD:
 [NUnit GUI](https://github.com/NUnitSoftware/nunit-gui/releases)  
 [NUnit Console](https://github.com/nunit/nunit-console/releases/tag/3.8)
 
-### Exercise
+### Exercise1
 
 Use NUnit and the TDD cycle to write a test for RockPaperScissors.
 
@@ -115,7 +115,7 @@ public void BankAccountShouldThrowOnNonPositiveAmount()
 }
 ```
 
-### Exercises
+### Exercises 2
 
 1. In your previous exercise, you made the **Beats** method return -2 if it does not exist. Add warnings to test cases needed. Write a test case which deliberately invokes the warning. <br>
 After adding warnings, add multiple assertions for each assertion, deliberately make a test fail to see if there are two error messages.
@@ -192,7 +192,7 @@ public void TestMultipleWithdrawalScenariosCaseSource(decimal amountToWithdraw, 
 }
 ```
 
-### Exercise
+### Exercise 3
 1. In your **Player** class, give it an _int32_ property **Cash** and a method **Withdraw** like so:
 
 ```csharp
@@ -334,7 +334,7 @@ public void DepositUnitTestWithMocks()
 }
 ```
 
-#### Exercise
+#### Exercise 4
 1. Write an interface named **IMakeMoney**
 ```cs
 public interface IMakeMoney
@@ -527,7 +527,7 @@ Our last topic is about mocking protected members. To do this, you have to use t
 var mock = new Mock<Player>(MockBehavior.Strict, new FakeMoney()) { CallBase = true };
 mock.Protected().Setup<int>("GetRandomNumber").Returns(1);
 ```
-#### Exercises
+#### Exercises 5
 1. For your Player class, try to use **Moq** to control how much money he makes. Also, use a local variable to keep a count of how many times **makeMoney** is called.
 
 2. Mock Player's Cash to whatever you want. Also verify that **MakeMoney()** is called at least once.
