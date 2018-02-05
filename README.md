@@ -478,8 +478,6 @@ public void MoqMethodsException()
 }
 ```
 
-#### Exercise
-For your Player class, try to use **Moq** to control how much money he makes. Also, use a local variable to keep a count of how many times **makeMoney** is called.
 
 
 Now let's look at how to mock properties.
@@ -532,14 +530,18 @@ public void MyProperties()
 }
 ```
 
-#### Exercise
-Mock Player's Cash to whatever you want. Also verify that **MakeMoney()** is called at least once.
-
-
 Our last topic is about mocking protected members. To do this, you have to use the **Moq.protected** namespace.
 
-#### Exercise
-Create a method called **ThrowRandomGesture()**. The way it generates random gesture depends on a private method called **GetRandomNumber()**. Try to mock  **GetRandomNumber()** so **ThrowRandomGesture()** always returns what you want.
+```csharp
+var mock = new Mock<Player>(MockBehavior.Strict, new FakeMoney()) { CallBase = true };
+mock.Protected().Setup<int>("GetRandomNumber").Returns(1);
+```
+#### Exercises
+1. For your Player class, try to use **Moq** to control how much money he makes. Also, use a local variable to keep a count of how many times **makeMoney** is called.
+
+2. Mock Player's Cash to whatever you want. Also verify that **MakeMoney()** is called at least once.
+
+3. Create a method called **ThrowRandomGesture()**. The way it generates random gesture depends on a private method called **GetRandomNumber()**. Try to mock  **GetRandomNumber()** so **ThrowRandomGesture()** always returns what you want.
 
 ```cs
 private int GetRandomNumber()
@@ -554,3 +556,4 @@ public Gesture ThrowRandomGesture()
     return gestures[random];
 }
 ```
+[Exercise5 Solution](./Exercise5.cs)
