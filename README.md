@@ -29,8 +29,6 @@ Write three classes which are **Rock**, **Paper**, and **Scissors**. Each of the
 * 1  If it wins
 * -1 If it loses
 * 0  If it's a tie
-* -2 If it does not exist.
-
 
 ```csharp
 [Test]
@@ -40,6 +38,16 @@ public void TestPaperBeatsRock()
     Assert.IsFalse(rock.Beats(paper) > 0);
 }
 ```
+
+After making these three classes, create an abstract class named **Gesture** with this function prototype:
+```cs
+public int Beats(Gesture gesture);
+```
+
+This returns -2 gesture is null or some other invalid input.
+
+[Exercise1 Solution](./Exercise1.cs)
+
 ## Section 2 Assertions
 
 1. Basic Assertions
