@@ -114,16 +114,7 @@ public void BankAccountShouldThrowOnNonPositiveAmount()
     StringAssert.StartsWith("Deposit amount must be positive", ex.Message);
 }
 ```
-6. Setup
-```csharp
-private BankAccount ba;
 
-[SetUp]
-public void SetUp()
-{
-    ba = new BankAccount(100);
-}
-```
 ### Exercises
 
 1. In your previous exercise, you made the **Beats** method return -2 if it does not exist. Add warnings to test cases needed. Write a test case which deliberately invokes the warning. <br>
@@ -146,7 +137,7 @@ It throws an exception if the input is not valid. Make it throw an exception wit
 
 [Exercise2 Solution](./Exercise2.cs)
 ___
-7. Data-Driven Testing
+6. Data-Driven Testing
 ```csharp
 private BankAccount ba;
 
