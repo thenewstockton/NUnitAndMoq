@@ -143,6 +143,7 @@ This method returns the corresponding object. The mapping is:
 "Scissors" -> new Scissors()
 ```
 It throws an exception if the input is not valid. Make it throw an exception with a message and do an Assertion. Write a setup method which creates an instance of Player.
+
 [Exercise2 Solution](./Exercise2.cs)
 ___
 7. Data-Driven Testing
@@ -215,6 +216,7 @@ Use the _Data-Driven Testing_ mechanism to test the **Withdraw** method
 
 2. In your first exercise, you wrote many test cases for **Gesture** which indicates who beats who. Use _Data-Driven Testing_ to re-implement those test cases.
 
+[Exercise3 Solution](./Exercise3.cs)
 ## Section 3 Test Doubles
 Most likely you have heard the terms **Fake**, **Stubs**, and **Mock** more or less.
 
