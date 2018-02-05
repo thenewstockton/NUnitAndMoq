@@ -114,10 +114,19 @@ public void BankAccountShouldThrowOnNonPositiveAmount()
     StringAssert.StartsWith("Deposit amount must be positive", ex.Message);
 }
 ```
+6. Setup
+```csharp
+private BankAccount ba;
 
+[SetUp]
+public void SetUp()
+{
+    ba = new BankAccount(100);
+}
+```
 ### Exercises
 
-1. In your previous exercise, you made the **Beats** method return -2 if it does not exist. Add warnings to each test case. Write a test case which deliberately invokes the warning. <br>
+1. In your previous exercise, you made the **Beats** method return -2 if it does not exist. Add warnings to test cases needed. Write a test case which deliberately invokes the warning. <br>
 After adding warnings, add multiple assertions for each assertion, deliberately make a test fail to see if there are two error messages.
 
 
@@ -133,10 +142,10 @@ This method returns the corresponding object. The mapping is:
 "Paper" -> new Paper()
 "Scissors" -> new Scissors()
 ```
-3. It throws an exception if the input is not valid. Make it throw an exception with a message and do an Assertion.
-
-
-6. Data-Driven Testing
+It throws an exception if the input is not valid. Make it throw an exception with a message and do an Assertion. Write a setup method which creates an instance of Player.
+[Exercise2 Solution](./Exercise2.cs)
+___
+7. Data-Driven Testing
 ```csharp
 private BankAccount ba;
 
