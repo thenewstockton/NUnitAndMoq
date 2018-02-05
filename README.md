@@ -343,6 +343,38 @@ public void DepositUnitTestWithMocks()
 }
 ```
 
+#### Exercise
+1. Write an interface named **IMakeMoney**
+```cs
+public interface IMakeMoney
+{
+    int MakeMoney();
+}
+```
+
+Make our **Player class** implement **IMakeMoney**
+```cs
+public class Player
+{
+    public int Cash { get; set; }
+
+    private IMakeMoney MakeMoney;
+
+    public Player(IMakeMoney makeMoney)
+    {
+        this.MakeMoney = makeMoney;
+    }
+
+    public int MakingMoney()
+    {
+        return MakeMoney.MakeMoney();
+    }
+}
+```
+
+Try to create Fake, Stubs, and Mock objects for **IMakeMoney**
+
+[Exercise4 Solution](./Exercise4.cs)
 ## Section 4 Moq
 * Methods
 * Properties
